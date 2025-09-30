@@ -1,0 +1,9 @@
+/* Additional custom styles if needed */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input:focus {
+  outline: none;
+}
