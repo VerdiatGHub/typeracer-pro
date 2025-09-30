@@ -258,11 +258,18 @@ function App() {
         const currentTypedWord = typedWords[currentWordIndex] || '';
         const expectedWord = currentWords[currentWordIndex] || '';
         
-        // If current word doesn't match expected start, mark as incorrect
-        if (currentTypedWord && !expectedWord.startsWith(currentTypedWord)) {
+        // Only mark as incorrect if user has typed something AND it doesn't match
+        if (currentTypedWord.length > 0 && !expectedWord.startsWith(currentTypedWord)) {
           setIncorrectWords(prev => new Set(prev).add(currentWordIndex));
-        } else if (currentTypedWord && expectedWord.startsWith(currentTypedWord)) {
+        } else if (currentTypedWord.length > 0 && expectedWord.startsWith(currentTypedWord)) {
           // Remove from incorrect if now matching
+          setIncorrectWords(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(currentWordIndex);
+            return newSet;
+          });
+        } else if (currentTypedWord.length === 0) {
+          // If no characters typed yet, ensure word is not marked as incorrect
           setIncorrectWords(prev => {
             const newSet = new Set(prev);
             newSet.delete(currentWordIndex);
