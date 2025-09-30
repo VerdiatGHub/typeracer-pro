@@ -535,7 +535,7 @@ function App() {
 
               {/* Text Display */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
-                <div className="text-2xl leading-relaxed font-mono tracking-wide">
+                <div className="text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap">
                   {mode === 'vietnamese' ? (
                     // Vietnamese: Word-based rendering
                     currentText.split(' ').map((word, wordIndex) => {
@@ -547,19 +547,16 @@ function App() {
                       
                       return (
                         <React.Fragment key={wordIndex}>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: wordIndex * 0.05 }}
+                          <span
                             className={`
                               ${isTyped && !isIncorrect ? 'text-green-400' : ''}
                               ${isIncorrect ? 'text-red-400 bg-red-400/20 rounded px-1' : ''}
                               ${!isTyped && !isCurrentWord ? 'text-gray-500' : ''}
-                              ${isCurrentWord ? 'text-yellow-400 border-b-2 border-yellow-400 animate-pulse' : ''}
+                              ${isCurrentWord ? 'text-yellow-400 border-b-2 border-yellow-400' : ''}
                             `}
                           >
                             {word}
-                          </motion.span>
+                          </span>
                           {wordIndex < currentText.split(' ').length - 1 && (
                             <span className="text-gray-500"> </span>
                           )}
@@ -572,21 +569,18 @@ function App() {
                       const status = getCharStatus(index);
                       const isSpace = char === ' ';
                       return (
-                        <motion.span
+                        <span
                           key={index}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: index * 0.01 }}
                           className={`
                             ${!isSpace && status === 'correct' ? 'text-green-400' : ''}
                             ${!isSpace && status === 'incorrect' ? 'text-red-400 bg-red-400/20' : ''}
                             ${!isSpace && status === 'pending' ? 'text-gray-500' : ''}
                             ${isSpace ? 'text-gray-500' : ''}
-                            ${index === userInput.length ? 'border-l-2 border-yellow-400 animate-pulse' : ''}
+                            ${index === userInput.length ? 'border-l-2 border-yellow-400' : ''}
                           `}
                         >
                           {char}
-                        </motion.span>
+                        </span>
                       );
                     })
                   )}
