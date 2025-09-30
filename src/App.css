@@ -2,6 +2,12 @@
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-decoration: none !important;
+}
+
+span {
+  text-decoration: none !important;
+  border-bottom: none !important;
 }
 
 input:focus {
