@@ -185,6 +185,21 @@ function App() {
   const [incorrectWords, setIncorrectWords] = useState<Set<number>>(new Set());
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+
+  // Unlock audio after user interaction
+  const unlockAudio = () => {
+    if (!audioUnlocked) {
+      setAudioUnlocked(true);
+      // Play a silent audio to unlock Web Audio API
+      const unlockAudio = new Audio();
+      unlockAudio.volume = 0.01;
+      unlockAudio.play().then(() => {
+        unlockAudio.pause();
+        unlockAudio.src = '';
+      }).catch(() => {});
+    }
+  };
 
   // Sound effects
   const keystrokeSound = useSound('/sounds/keystroke.mp3', { volume: 0.2 });
@@ -204,7 +219,8 @@ function App() {
 
   // Initialize game with random text
   const startGame = () => {
-    if (soundEnabled) buttonSound.play();
+    unlockAudio();
+    if (soundEnabled && audioUnlocked) buttonSound.play();
     const pool = TEXTS[mode];
     const randomText = pool[Math.floor(Math.random() * pool.length)];
     // Remove any trailing period and spaces so players don't have to type '.' at the end
@@ -220,7 +236,8 @@ function App() {
   };
 
   const resetGame = () => {
-    if (soundEnabled) buttonSound.play();
+    unlockAudio();
+    if (soundEnabled && audioUnlocked) buttonSound.play();
     setGameState('idle');
     setUserInput('');
     setStartTime(null);
@@ -238,7 +255,7 @@ function App() {
       if (userInput === currentText || userInput.trimEnd() === currentText) {
         setGameState('finished');
         bgMusic.stop();
-        if (soundEnabled) completeSound.play();
+        if (soundEnabled && audioUnlocked) completeSound.play();
         return; // Stop this interval callback immediately
       }
 
@@ -260,7 +277,10 @@ function App() {
   // Handle typing
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
+    // Unlock audio on first user interaction
+    unlockAudio();
+
     if (gameState !== 'playing') return;
 
     if (mode === 'vietnamese') {
@@ -276,13 +296,13 @@ function App() {
         
         if (typedWord !== expectedWord) {
           setIncorrectWords(prev => new Set(prev).add(wordIndex));
-          if (soundEnabled && value.length > userInput.length) errorSound.play();
+          if (soundEnabled && audioUnlocked && value.length > userInput.length) errorSound.play();
         } else {
-          if (soundEnabled && value.length > userInput.length) keystrokeSound.play();
+          if (soundEnabled && audioUnlocked && value.length > userInput.length) keystrokeSound.play();
         }
       } else if (value.length > userInput.length) {
         // Play keystroke sound for regular typing (not on space)
-        if (soundEnabled) keystrokeSound.play();
+        if (soundEnabled && audioUnlocked) keystrokeSound.play();
       }
       
       // Check current word being typed (if not complete)
@@ -318,9 +338,9 @@ function App() {
         
         if (newChar !== expectedChar) {
           setErrors(prev => prev + 1);
-          if (soundEnabled) errorSound.play();
+          if (soundEnabled && audioUnlocked) errorSound.play();
         } else {
-          if (soundEnabled) keystrokeSound.play();
+          if (soundEnabled && audioUnlocked) keystrokeSound.play();
         }
       }
     }
@@ -356,7 +376,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden"
+      onClick={() => unlockAudio()}
+    >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -414,10 +437,17 @@ function App() {
             
             {/* Sound Controls */}
             <div className="flex items-center gap-4">
+              {!audioUnlocked && (
+                <div className="text-xs text-yellow-400 flex items-center gap-1">
+                  <span className="animate-pulse">🔇</span>
+                  <span>Click to enable audio</span>
+                </div>
+              )}
               <button
                 onClick={() => {
+                  unlockAudio();
                   setSoundEnabled(!soundEnabled);
-                  if (!soundEnabled) buttonSound.play();
+                  if (!soundEnabled && audioUnlocked) buttonSound.play();
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 hover:border-purple-500 transition-all text-gray-200"
                 title={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
@@ -428,8 +458,9 @@ function App() {
               
               <button
                 onClick={() => {
+                  unlockAudio();
                   setMusicEnabled(!musicEnabled);
-                  if (soundEnabled) buttonSound.play();
+                  if (soundEnabled && audioUnlocked) buttonSound.play();
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 hover:border-purple-500 transition-all text-gray-200"
                 title={musicEnabled ? 'Disable background music' : 'Enable background music'}
