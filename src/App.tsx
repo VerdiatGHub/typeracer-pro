@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
+import useSound from './hooks/useSound';
 
 // Typing texts organized by mode
 type Mode = 'english' | 'vietnamese';
@@ -182,9 +183,28 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<Mode>('english');
   const [incorrectWords, setIncorrectWords] = useState<Set<number>>(new Set());
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [musicEnabled, setMusicEnabled] = useState(false);
+
+  // Sound effects
+  const keystrokeSound = useSound('/sounds/keystroke.mp3', { volume: 0.2 });
+  const errorSound = useSound('/sounds/error.mp3', { volume: 0.3 });
+  const buttonSound = useSound('/sounds/button-click.mp3', { volume: 0.3 });
+  const completeSound = useSound('/sounds/complete.mp3', { volume: 0.5 });
+  const bgMusic = useSound('/sounds/lofi-bg.mp3', { volume: 0.2, loop: true });
+
+  // Background music control
+  useEffect(() => {
+    if (musicEnabled && gameState === 'playing') {
+      bgMusic.play();
+    } else {
+      bgMusic.pause();
+    }
+  }, [musicEnabled, gameState]);
 
   // Initialize game with random text
   const startGame = () => {
+    if (soundEnabled) buttonSound.play();
     const pool = TEXTS[mode];
     const randomText = pool[Math.floor(Math.random() * pool.length)];
     // Remove any trailing period and spaces so players don't have to type '.' at the end
@@ -200,11 +220,13 @@ function App() {
   };
 
   const resetGame = () => {
+    if (soundEnabled) buttonSound.play();
     setGameState('idle');
     setUserInput('');
     setStartTime(null);
     setErrors(0);
     setIncorrectWords(new Set());
+    bgMusic.stop();
   };
 
   // Calculate stats
@@ -215,6 +237,8 @@ function App() {
       // Check if finished first to prevent further updates
       if (userInput === currentText || userInput.trimEnd() === currentText) {
         setGameState('finished');
+        bgMusic.stop();
+        if (soundEnabled) completeSound.play();
         return; // Stop this interval callback immediately
       }
 
@@ -252,7 +276,13 @@ function App() {
         
         if (typedWord !== expectedWord) {
           setIncorrectWords(prev => new Set(prev).add(wordIndex));
+          if (soundEnabled && value.length > userInput.length) errorSound.play();
+        } else {
+          if (soundEnabled && value.length > userInput.length) keystrokeSound.play();
         }
+      } else if (value.length > userInput.length) {
+        // Play keystroke sound for regular typing (not on space)
+        if (soundEnabled) keystrokeSound.play();
       }
       
       // Check current word being typed (if not complete)
@@ -288,6 +318,9 @@ function App() {
         
         if (newChar !== expectedChar) {
           setErrors(prev => prev + 1);
+          if (soundEnabled) errorSound.play();
+        } else {
+          if (soundEnabled) keystrokeSound.play();
         }
       }
     }
@@ -365,17 +398,46 @@ function App() {
             TypingVelocity
           </h1>
           <p className="text-xl text-gray-300">Test your typing speed and accuracy!</p>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <label className="text-gray-300 font-medium">Mode:</label>
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value as Mode)}
-              disabled={gameState !== 'idle'}
-              className="px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 focus:border-purple-500 focus:outline-none text-gray-200"
-            >
-              <option value="english">English</option>
-              <option value="vietnamese">Tiếng Việt</option>
-            </select>
+          <div className="mt-6 flex items-center justify-center gap-6 flex-wrap">
+            <div className="flex items-center gap-3">
+              <label className="text-gray-300 font-medium">Mode:</label>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as Mode)}
+                disabled={gameState !== 'idle'}
+                className="px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 focus:border-purple-500 focus:outline-none text-gray-200"
+              >
+                <option value="english">English</option>
+                <option value="vietnamese">Tiếng Việt</option>
+              </select>
+            </div>
+            
+            {/* Sound Controls */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  setSoundEnabled(!soundEnabled);
+                  if (!soundEnabled) buttonSound.play();
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 hover:border-purple-500 transition-all text-gray-200"
+                title={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
+              >
+                <span className="text-xl">{soundEnabled ? '🔊' : '🔇'}</span>
+                <span className="text-sm">SFX</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setMusicEnabled(!musicEnabled);
+                  if (soundEnabled) buttonSound.play();
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 hover:border-purple-500 transition-all text-gray-200"
+                title={musicEnabled ? 'Disable background music' : 'Enable background music'}
+              >
+                <span className="text-xl">{musicEnabled ? '🎵' : '🎶'}</span>
+                <span className="text-sm">Music</span>
+              </button>
+            </div>
           </div>
         </motion.div>
 
