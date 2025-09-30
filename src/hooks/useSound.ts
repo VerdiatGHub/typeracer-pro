@@ -11,33 +11,42 @@ export const useSound = (soundPath: string, options: SoundOptions = {}) => {
 
   useEffect(() => {
     const audio = new Audio(soundPath);
+    audio.preload = 'auto';
     audio.volume = options.volume ?? 0.5;
     audio.loop = options.loop ?? false;
-    
-    audio.addEventListener('canplaythrough', () => {
-      setIsLoaded(true);
-    });
-    
-    audio.addEventListener('error', () => {
+
+    const markLoaded = () => setIsLoaded(true);
+    const onError = () => {
       console.warn(`Failed to load audio: ${soundPath}`);
       setIsLoaded(false);
-    });
+    };
+
+    audio.addEventListener('loadedmetadata', markLoaded);
+    audio.addEventListener('canplay', markLoaded);
+    audio.addEventListener('canplaythrough', markLoaded);
+    audio.addEventListener('error', onError);
 
     audioRef.current = audio;
 
     return () => {
       audio.pause();
       audio.src = '';
+      audio.removeEventListener('loadedmetadata', markLoaded);
+      audio.removeEventListener('canplay', markLoaded);
+      audio.removeEventListener('canplaythrough', markLoaded);
+      audio.removeEventListener('error', onError);
     };
   }, [soundPath, options.volume, options.loop]);
 
   const play = () => {
-    if (audioRef.current && isLoaded) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {
-        // Ignore errors from browsers that require user interaction first
-      });
-    }
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      audio.currentTime = 0;
+    } catch {}
+    audio.play().catch(() => {
+      // Ignore errors from browsers that require user interaction first
+    });
   };
 
   const stop = () => {
