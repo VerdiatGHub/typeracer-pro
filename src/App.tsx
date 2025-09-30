@@ -22,7 +22,7 @@ const TEXTS: Record<Mode, string[]> = {
   "Technology has revolutionized the way we live, work, and communicate with each other across the globe.",
   "The art of writing code is similar to composing music, both require creativity, precision, and passion.",
   "Every expert was once a beginner who never gave up on their dreams and continued to learn every day.",
-  "Debugging is like being a detective in a crime movie where you are also the murderer at the same time.",
+  "Debugging is like being a detective in a mystery story, piecing clues together until the problem is solved.",
   "Code is poetry written in a language that machines can understand and execute with perfect precision.",
   "The best error message is the one that never shows up because the code was written correctly from the start.",
   "Good programmers write code that humans can understand, not just machines, making maintenance much easier.",
@@ -187,7 +187,9 @@ function App() {
   const startGame = () => {
     const pool = TEXTS[mode];
     const randomText = pool[Math.floor(Math.random() * pool.length)];
-    setCurrentText(randomText);
+    // Remove any trailing period and spaces so players don't have to type '.' at the end
+    const processedText = randomText.replace(/\.\s*$/, '');
+    setCurrentText(processedText);
     setUserInput('');
     setGameState('playing');
     setStartTime(Date.now());
@@ -222,7 +224,7 @@ function App() {
       setStats({ wpm, accuracy, time, progress });
 
       // Check if finished
-      if (userInput === currentText) {
+      if (userInput === currentText || userInput.trimEnd() === currentText) {
         setGameState('finished');
       }
     }, 100);
@@ -535,7 +537,7 @@ function App() {
 
               {/* Text Display */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
-                <div className="text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
+                <div className="typing-text text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
                   {mode === 'vietnamese' ? (
                     // Vietnamese: Word-based rendering
                     currentText.split(' ').map((word, wordIndex) => {

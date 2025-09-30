@@ -2,12 +2,14 @@
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-decoration: none !important;
 }
 
-span {
+/* Prevent underlines specifically within the typing text area */
+.typing-text,
+.typing-text * {
   text-decoration: none !important;
-  border-bottom: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: 0 !important;
 }
 
 input:focus {
