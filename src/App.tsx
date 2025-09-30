@@ -212,6 +212,12 @@ function App() {
     if (gameState !== 'playing' || !startTime) return;
 
     const interval = setInterval(() => {
+      // Check if finished first to prevent further updates
+      if (userInput === currentText || userInput.trimEnd() === currentText) {
+        setGameState('finished');
+        return; // Stop this interval callback immediately
+      }
+
       const timeElapsed = (Date.now() - startTime) / 1000 / 60; // in minutes
       const wordsTyped = userInput.trim().split(/\s+/).length;
       const wpm = Math.round(wordsTyped / timeElapsed) || 0;
@@ -222,11 +228,6 @@ function App() {
       const time = Math.floor((Date.now() - startTime) / 1000);
 
       setStats({ wpm, accuracy, time, progress });
-
-      // Check if finished
-      if (userInput === currentText || userInput.trimEnd() === currentText) {
-        setGameState('finished');
-      }
     }, 100);
 
     return () => clearInterval(interval);
