@@ -359,7 +359,7 @@ function App() {
           className="text-center mb-12"
         >
           <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">
-            TypeRacer Pro
+            TypingVelocity
           </h1>
           <p className="text-xl text-gray-300">Test your typing speed and accuracy!</p>
           <div className="mt-6 flex items-center justify-center gap-3">
@@ -535,7 +535,7 @@ function App() {
 
               {/* Text Display */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
-                <div className="text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap">
+                <div className="text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
                   {mode === 'vietnamese' ? (
                     // Vietnamese: Word-based rendering
                     currentText.split(' ').map((word, wordIndex) => {
@@ -546,21 +546,17 @@ function App() {
                       const isIncorrect = incorrectWords.has(wordIndex);
                       
                       return (
-                        <React.Fragment key={wordIndex}>
-                          <span
-                            className={`
-                              ${isTyped && !isIncorrect ? 'text-green-400' : ''}
-                              ${isIncorrect ? 'text-red-400 bg-red-400/20 rounded px-1' : ''}
-                              ${!isTyped && !isCurrentWord ? 'text-gray-500' : ''}
-                              ${isCurrentWord ? 'text-yellow-400 border-b-2 border-yellow-400' : ''}
-                            `}
-                          >
-                            {word}
-                          </span>
-                          {wordIndex < currentText.split(' ').length - 1 && (
-                            <span className="text-gray-500"> </span>
-                          )}
-                        </React.Fragment>
+                        <span
+                          key={wordIndex}
+                          className={`inline-block mr-2
+                            ${isTyped && !isIncorrect ? 'text-green-400' : ''}
+                            ${isIncorrect ? 'text-red-400 bg-red-400/20 rounded px-1' : ''}
+                            ${!isTyped && !isCurrentWord ? 'text-gray-500' : ''}
+                            ${isCurrentWord ? 'text-yellow-400' : ''}
+                          `}
+                        >
+                          {word}
+                        </span>
                       );
                     })
                   ) : (
@@ -576,7 +572,7 @@ function App() {
                             ${!isSpace && status === 'incorrect' ? 'text-red-400 bg-red-400/20' : ''}
                             ${!isSpace && status === 'pending' ? 'text-gray-500' : ''}
                             ${isSpace ? 'text-gray-500' : ''}
-                            ${index === userInput.length ? 'border-l-2 border-yellow-400' : ''}
+                            ${index === userInput.length ? 'bg-yellow-400/30' : ''}
                           `}
                         >
                           {char}
