@@ -655,10 +655,7 @@ function App() {
                         <span
                           key={wordIndex}
                           className={`inline-block mr-2
-                            ${isTyped && !isIncorrect ? 'text-green-400' : ''}
-                            ${isIncorrect ? 'text-red-400' : ''}
-                            ${!isTyped && !isCurrentWord ? 'text-gray-500' : ''}
-                            ${isCurrentWord ? 'text-yellow-400' : ''}
+                            ${isCurrentWord ? 'text-yellow-400' : isTyped && !isIncorrect ? 'text-green-400' : isIncorrect ? 'text-red-400' : 'text-gray-500'}
                           `}
                         >
                           {word}
