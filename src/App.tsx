@@ -594,15 +594,19 @@ function App() {
                   {currentText.split(' ').map((word, wordIndex) => {
                     const typedWords = userInput.split(' ');
                     const currentWordIndex = typedWords.length - 1;
-                    const isCurrentWord = wordIndex === currentWordIndex; // always highlight current word yellow
+                    const isCurrentWord = wordIndex === currentWordIndex;
                     const isCompleted = wordIndex < currentWordIndex; // only words before current are completed
                     const isIncorrect = incorrectWords.has(wordIndex);
+
+                    // Check if current word is fully completed (typed correctly without trailing space)
+                    const currentTypedWord = typedWords[currentWordIndex] || '';
+                    const isCurrentWordCompleted = isCurrentWord && currentTypedWord === word;
 
                     return (
                       <span
                         key={wordIndex}
                         className={`inline-block mr-2
-                          ${isCurrentWord ? 'text-yellow-400' : isCompleted ? (!isIncorrect ? 'text-green-400' : 'text-red-400') : 'text-gray-500'}
+                          ${isCurrentWordCompleted ? 'text-green-400' : isCurrentWord ? 'text-yellow-400' : isCompleted ? (!isIncorrect ? 'text-green-400' : 'text-red-400') : 'text-gray-500'}
                         `}
                       >
                         {word}
