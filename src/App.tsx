@@ -594,61 +594,15 @@ function App() {
                   {currentText.split(' ').map((word, wordIndex) => {
                     const typedWords = userInput.split(' ');
                     const currentWordIndex = typedWords.length - 1;
-                    const isCurrentWord = wordIndex === currentWordIndex;
-                    const isCompleted = wordIndex < currentWordIndex;
+                    const isCurrentWord = wordIndex === currentWordIndex; // always highlight current word yellow
+                    const isCompleted = wordIndex < currentWordIndex; // only words before current are completed
                     const isIncorrect = incorrectWords.has(wordIndex);
 
-                    // For completed words, show entire word in color
-                    if (isCompleted) {
-                      return (
-                        <span
-                          key={wordIndex}
-                          className={`inline-block mr-2 ${!isIncorrect ? 'text-green-400' : 'text-red-400'}`}
-                        >
-                          {word}
-                        </span>
-                      );
-                    }
-
-                    // For current word in precision mode, show character-level highlighting
-                    if (isCurrentWord && gameMode === 'precision') {
-                      const typedWord = typedWords[currentWordIndex] || '';
-                      const wordChars = word.split('');
-                      const typedChars = typedWord.split('');
-
-                      return (
-                        <span key={wordIndex} className="inline-block mr-2">
-                          {wordChars.map((char, charIndex) => {
-                            const typedChar = typedChars[charIndex];
-                            let charClass = '';
-
-                            if (typedChar === undefined) {
-                              // Not yet typed - yellow for upcoming characters
-                              charClass = 'text-yellow-400';
-                            } else if (typedChar === char) {
-                              // Correctly typed - green
-                              charClass = 'text-green-400';
-                            } else {
-                              // Incorrectly typed - red
-                              charClass = 'text-red-400';
-                            }
-
-                            return (
-                              <span key={charIndex} className={charClass}>
-                                {char}
-                              </span>
-                            );
-                          })}
-                        </span>
-                      );
-                    }
-
-                    // For current word in speed mode or upcoming words, show entire word in appropriate color
                     return (
                       <span
                         key={wordIndex}
                         className={`inline-block mr-2
-                          ${isCurrentWord ? 'text-yellow-400' : 'text-gray-500'}
+                          ${isCurrentWord ? 'text-yellow-400' : isCompleted ? (!isIncorrect ? 'text-green-400' : 'text-red-400') : 'text-gray-500'}
                         `}
                       >
                         {word}
