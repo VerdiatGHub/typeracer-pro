@@ -651,19 +651,42 @@ function App() {
                 </motion.div>
               )}
 
-              {/* Reset Button */}
-              {gameState === 'playing' && (
+              {/* Control Buttons */}
+              <div className="mt-6 space-y-3">
+                {/* Back to Menu Button */}
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={resetGame}
-                  className="mt-6 px-6 py-3 bg-gray-700/50 backdrop-blur rounded-xl font-semibold hover:bg-gray-600/50 transition-all duration-300 w-full"
+                  onClick={() => {
+                    unlockAudio();
+                    if (soundEnabled) buttonSound.play();
+                    setGameState('idle');
+                    setUserInput('');
+                    setStartTime(null);
+                    setIncorrectWords(new Set());
+                    bgMusic.stop();
+                  }}
+                  className="w-full px-6 py-3 bg-blue-600/50 backdrop-blur rounded-xl font-semibold hover:bg-blue-500/50 transition-all duration-300 text-blue-200 hover:text-blue-100"
                 >
-                  ↻ Reset
+                  ← Back to Menu
                 </motion.button>
-              )}
+
+                {/* Reset Button */}
+                {gameState === 'playing' && (
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={resetGame}
+                    className="w-full px-6 py-3 bg-gray-700/50 backdrop-blur rounded-xl font-semibold hover:bg-gray-600/50 transition-all duration-300"
+                  >
+                    ↻ Reset
+                  </motion.button>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
