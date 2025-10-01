@@ -228,16 +228,6 @@ function App() {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  const resetGame = () => {
-    unlockAudio();
-    if (soundEnabled) buttonSound.play();
-    setGameState('idle');
-    setUserInput('');
-    setStartTime(null);
-    setIncorrectWords(new Set());
-    bgMusic.stop();
-  };
-
   const newChallenge = () => {
     unlockAudio();
     if (soundEnabled) buttonSound.play();
