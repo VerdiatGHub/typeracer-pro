@@ -321,31 +321,7 @@ function App() {
         if (soundEnabled) keystrokeSound.play();
       }
       
-      // Check current word being typed (if not complete)
-      if (!value.endsWith(' ') && typedWords.length <= currentWords.length) {
-        const currentWordIndex = typedWords.length - 1;
-        const currentTypedWord = typedWords[currentWordIndex] || '';
-        const expectedWord = currentWords[currentWordIndex] || '';
-        
-        // Only mark as incorrect if user has typed something AND it doesn't match
-        if (currentTypedWord.length > 0 && !expectedWord.startsWith(currentTypedWord)) {
-          setIncorrectWords(prev => new Set(prev).add(currentWordIndex));
-        } else if (currentTypedWord.length > 0 && expectedWord.startsWith(currentTypedWord)) {
-          // Remove from incorrect if now matching
-          setIncorrectWords(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(currentWordIndex);
-            return newSet;
-          });
-        } else if (currentTypedWord.length === 0) {
-          // If no characters typed yet, ensure word is not marked as incorrect
-          setIncorrectWords(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(currentWordIndex);
-            return newSet;
-          });
-        }
-      }
+      // Do not mark current word as incorrect while typing; decision happens on space
     } else {
       // For English in Precision mode: keep character-level validation
       if (value.length > userInput.length) {
@@ -657,15 +633,15 @@ function App() {
                     currentText.split(' ').map((word, wordIndex) => {
                       const typedWords = userInput.split(' ');
                       const currentWordIndex = typedWords.length - 1;
-                      const isCurrentWord = wordIndex === currentWordIndex && !userInput.endsWith(' ');
-                      const isTyped = wordIndex < typedWords.length && (userInput.endsWith(' ') || wordIndex < currentWordIndex);
+                      const isCurrentWord = wordIndex === currentWordIndex; // always highlight current word
+                      const isCompleted = wordIndex < currentWordIndex; // only words strictly before current are completed
                       const isIncorrect = incorrectWords.has(wordIndex);
 
                       return (
                         <span
                           key={wordIndex}
                           className={`inline-block mr-2
-                            ${isCurrentWord ? 'text-yellow-400' : isTyped && !isIncorrect ? 'text-green-400' : isIncorrect ? 'text-red-400' : 'text-gray-500'}
+                            ${isCurrentWord ? 'text-yellow-400' : isCompleted ? (!isIncorrect ? 'text-green-400' : 'text-red-400') : 'text-gray-500'}
                           `}
                         >
                           {word}
