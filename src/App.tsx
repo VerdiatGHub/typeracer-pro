@@ -180,7 +180,6 @@ function App() {
     time: 0,
     progress: 0,
   });
-  const [errors, setErrors] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<Mode>('english');
   const [gameMode, setGameMode] = useState<GameMode>('precision'); // New state for game mode
@@ -224,7 +223,6 @@ function App() {
     setUserInput('');
     setGameState('playing');
     setStartTime(Date.now());
-    setErrors(0);
     setStats({ wpm: 0, accuracy: 100, time: 0, progress: 0 });
     setIncorrectWords(new Set());
     setTimeout(() => inputRef.current?.focus(), 100);
@@ -236,7 +234,6 @@ function App() {
     setGameState('idle');
     setUserInput('');
     setStartTime(null);
-    setErrors(0);
     setIncorrectWords(new Set());
     bgMusic.stop();
   };
@@ -331,33 +328,6 @@ function App() {
     }
 
     setUserInput(value);
-  };
-
-  // Get character status with Vietnamese accent tolerance
-  const getCharStatus = (index: number) => {
-    if (index >= userInput.length) return 'pending';
-    
-    const userChar = userInput[index];
-    const expectedChar = currentText[index];
-    
-    // Exact match is always correct
-    if (userChar === expectedChar) return 'correct';
-    
-    // For Vietnamese mode, be more lenient with accented characters
-    if (mode === 'vietnamese') {
-      // Normalize both characters to remove accents for comparison
-      const normalizeVietnamese = (char: string) => {
-        return char.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-      };
-      
-      const normalizedUser = normalizeVietnamese(userChar);
-      const normalizedExpected = normalizeVietnamese(expectedChar);
-      
-      // If base characters match, consider it correct (ignoring accent differences)
-      if (normalizedUser === normalizedExpected) return 'correct';
-    }
-    
-    return 'incorrect';
   };
 
   return (
