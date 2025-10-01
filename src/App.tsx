@@ -656,7 +656,7 @@ function App() {
                           key={wordIndex}
                           className={`inline-block mr-2
                             ${isTyped && !isIncorrect ? 'text-green-400' : ''}
-                            ${isIncorrect ? 'text-red-400 bg-red-400/20 rounded px-1' : ''}
+                            ${isIncorrect ? 'text-red-400' : ''}
                             ${!isTyped && !isCurrentWord ? 'text-gray-500' : ''}
                             ${isCurrentWord ? 'text-yellow-400' : ''}
                           `}
@@ -675,10 +675,10 @@ function App() {
                           key={index}
                           className={`
                             ${!isSpace && status === 'correct' ? 'text-green-400' : ''}
-                            ${!isSpace && status === 'incorrect' ? 'text-red-400 bg-red-400/20' : ''}
+                            ${!isSpace && status === 'incorrect' ? 'text-red-400' : ''}
                             ${!isSpace && status === 'pending' ? 'text-gray-500' : ''}
                             ${isSpace ? 'text-gray-500' : ''}
-                            ${index === userInput.length ? 'bg-yellow-400/30' : ''}
+                            ${index === userInput.length ? 'text-yellow-400' : ''}
                           `}
                         >
                           {char}
