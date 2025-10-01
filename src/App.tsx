@@ -246,14 +246,23 @@ function App() {
     if (gameState !== 'playing' || !startTime) return;
 
     const interval = setInterval(() => {
+      const currentWords = currentText.split(' ');
+      const typedWords = userInput.split(' ');
+      
       // Check if finished based on game mode
       if (gameMode === 'precision') {
-        // Precision mode: only finish when text is typed correctly
-        if (userInput === currentText || userInput.trimEnd() === currentText) {
+        // Precision mode: finish when all words are typed correctly (word-level precision)
+        const allWordsTyped = typedWords.length >= currentWords.length;
+        const allWordsCorrect = currentWords.every((word, idx) => {
+          const typedWord = (typedWords[idx] || '').trim();
+          return typedWord === word;
+        });
+        
+        if (allWordsTyped && allWordsCorrect) {
           setGameState('finished');
           bgMusic.stop();
           if (soundEnabled) completeSound.play();
-          return; // Stop this interval callback immediately
+          return;
         }
       } else {
         // Speed mode: finish when user reaches the end of the text regardless of accuracy
@@ -269,16 +278,21 @@ function App() {
       const wordsTyped = userInput.trim().split(/\s+/).length;
       const wpm = Math.round(wordsTyped / timeElapsed) || 0;
       const progress = (userInput.length / currentText.length) * 100;
-      const accuracy = userInput.length > 0 
-        ? Math.round(((userInput.length - errors) / userInput.length) * 100)
+      
+      // Calculate accuracy based on incorrect words
+      const totalWordsTyped = Math.min(typedWords.length, currentWords.length);
+      const correctWords = totalWordsTyped - incorrectWords.size;
+      const accuracy = totalWordsTyped > 0 
+        ? Math.round((correctWords / totalWordsTyped) * 100)
         : 100;
+      
       const time = Math.floor((Date.now() - startTime) / 1000);
 
       setStats({ wpm, accuracy, time, progress });
     }, 100);
 
     return () => clearInterval(interval);
-  }, [gameState, startTime, userInput, currentText, errors, gameMode]);
+  }, [gameState, startTime, userInput, currentText, incorrectWords, gameMode, soundEnabled, completeSound, bgMusic]);
 
   // Handle typing
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -314,16 +328,6 @@ function App() {
     } else if (value.length > userInput.length) {
       // Regular typing keystroke (not space)
       if (soundEnabled) keystrokeSound.play();
-    }
-
-    // Additional character-level validation for precision English (stats + error sound)
-    if (gameMode === 'precision' && mode === 'english' && value.length > userInput.length) {
-      const newChar = value[value.length - 1];
-      const expectedChar = currentText[value.length - 1];
-      if (newChar !== expectedChar) {
-        setErrors(prev => prev + 1);
-        if (soundEnabled) errorSound.play();
-      }
     }
 
     setUserInput(value);
