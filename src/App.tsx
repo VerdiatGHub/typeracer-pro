@@ -238,6 +238,22 @@ function App() {
     bgMusic.stop();
   };
 
+  const newChallenge = () => {
+    unlockAudio();
+    if (soundEnabled) buttonSound.play();
+    // Generate new random text
+    const pool = TEXTS[mode];
+    const randomText = pool[Math.floor(Math.random() * pool.length)];
+    const processedText = randomText.replace(/\.\s*$/, '');
+    setCurrentText(processedText);
+    // Reset game state for new challenge
+    setUserInput('');
+    setStartTime(Date.now());
+    setStats({ wpm: 0, accuracy: 100, time: 0, progress: 0 });
+    setIncorrectWords(new Set());
+    // Keep game state as 'playing'
+  };
+
   // Calculate stats
   useEffect(() => {
     if (gameState !== 'playing' || !startTime) return;
@@ -673,17 +689,17 @@ function App() {
                   ← Back to Menu
                 </motion.button>
 
-                {/* Reset Button */}
+                {/* New Challenge Button */}
                 {gameState === 'playing' && (
                   <motion.button
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={resetGame}
+                    onClick={newChallenge}
                     className="w-full px-6 py-3 bg-gray-700/50 backdrop-blur rounded-xl font-semibold hover:bg-gray-600/50 transition-all duration-300"
                   >
-                    ↻ Reset
+                    🔄 New Challenge
                   </motion.button>
                 )}
               </div>
