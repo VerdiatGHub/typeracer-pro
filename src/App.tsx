@@ -5,6 +5,7 @@ import useSound from './hooks/useSound';
 
 // Typing texts organized by mode
 type Mode = 'english' | 'vietnamese';
+type GameMode = 'precision' | 'speed';
 
 const TEXTS: Record<Mode, string[]> = {
   english: [
@@ -182,6 +183,7 @@ function App() {
   const [errors, setErrors] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<Mode>('english');
+  const [gameMode, setGameMode] = useState<GameMode>('precision'); // New state for game mode
   const [incorrectWords, setIncorrectWords] = useState<Set<number>>(new Set());
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(false);
@@ -244,12 +246,23 @@ function App() {
     if (gameState !== 'playing' || !startTime) return;
 
     const interval = setInterval(() => {
-      // Check if finished first to prevent further updates
-      if (userInput === currentText || userInput.trimEnd() === currentText) {
-        setGameState('finished');
-        bgMusic.stop();
-        if (soundEnabled) completeSound.play();
-        return; // Stop this interval callback immediately
+      // Check if finished based on game mode
+      if (gameMode === 'precision') {
+        // Precision mode: only finish when text is typed correctly
+        if (userInput === currentText || userInput.trimEnd() === currentText) {
+          setGameState('finished');
+          bgMusic.stop();
+          if (soundEnabled) completeSound.play();
+          return; // Stop this interval callback immediately
+        }
+      } else {
+        // Speed mode: finish when user reaches the end of the text regardless of accuracy
+        if (userInput.length >= currentText.length) {
+          setGameState('finished');
+          bgMusic.stop();
+          if (soundEnabled) completeSound.play();
+          return; // Stop this interval callback immediately
+        }
       }
 
       const timeElapsed = (Date.now() - startTime) / 1000 / 60; // in minutes
@@ -265,7 +278,7 @@ function App() {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [gameState, startTime, userInput, currentText, errors]);
+  }, [gameState, startTime, userInput, currentText, errors, gameMode]);
 
   // Handle typing
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -413,7 +426,7 @@ function App() {
           <p className="text-xl text-gray-300">Test your typing speed and accuracy!</p>
           <div className="mt-6 flex items-center justify-center gap-6 flex-wrap">
             <div className="flex items-center gap-3">
-              <label className="text-gray-300 font-medium">Mode:</label>
+              <label className="text-gray-300 font-medium">Typing Mode:</label>
               <select
                 value={mode}
                 onChange={(e) => setMode(e.target.value as Mode)}
@@ -422,6 +435,19 @@ function App() {
               >
                 <option value="english">English</option>
                 <option value="vietnamese">Tiếng Việt</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <label className="text-gray-300 font-medium">Game Mode:</label>
+              <select
+                value={gameMode}
+                onChange={(e) => setGameMode(e.target.value as GameMode)}
+                disabled={gameState !== 'idle'}
+                className="px-4 py-2 bg-gray-800/50 backdrop-blur rounded-lg border border-gray-700 focus:border-purple-500 focus:outline-none text-gray-200"
+              >
+                <option value="precision">Precision (100% accuracy)</option>
+                <option value="speed">Speed (any accuracy)</option>
               </select>
             </div>
             
