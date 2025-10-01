@@ -614,30 +614,27 @@ function App() {
                 </div>
               </div>
 
-              {/* Text Display - Updated comment to confirm no background highlighting */}
+              {/* Text Display - Word-based highlighting for all modes */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
                 <div className="typing-text text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
-                  {(mode === 'vietnamese' || gameMode === 'speed' || gameMode === 'precision') ? (
-                    // Word-based rendering (both modes) for consistent highlighting
-                    currentText.split(' ').map((word, wordIndex) => {
-                      const typedWords = userInput.split(' ');
-                      const currentWordIndex = typedWords.length - 1;
-                      const isCurrentWord = wordIndex === currentWordIndex; // always highlight current word
-                      const isCompleted = wordIndex < currentWordIndex; // only words strictly before current are completed
-                      const isIncorrect = incorrectWords.has(wordIndex);
+                  {currentText.split(' ').map((word, wordIndex) => {
+                    const typedWords = userInput.split(' ');
+                    const currentWordIndex = typedWords.length - 1;
+                    const isCurrentWord = wordIndex === currentWordIndex; // always highlight current word yellow
+                    const isCompleted = wordIndex < currentWordIndex; // only words before current are completed
+                    const isIncorrect = incorrectWords.has(wordIndex);
 
-                      return (
-                        <span
-                          key={wordIndex}
-                          className={`inline-block mr-2
-                            ${isCurrentWord ? 'text-yellow-400' : isCompleted ? (!isIncorrect ? 'text-green-400' : 'text-red-400') : 'text-gray-500'}
-                          `}
-                        >
-                          {word}
-                        </span>
-                      );
-                    })
-                  ) : null}
+                    return (
+                      <span
+                        key={wordIndex}
+                        className={`inline-block mr-2
+                          ${isCurrentWord ? 'text-yellow-400' : isCompleted ? (!isIncorrect ? 'text-green-400' : 'text-red-400') : 'text-gray-500'}
+                        `}
+                      >
+                        {word}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
