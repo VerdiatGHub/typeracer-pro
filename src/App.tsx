@@ -639,7 +639,7 @@ function App() {
                 </div>
               </div>
 
-              {/* Text Display */}
+              {/* Text Display - Updated comment to confirm no background highlighting */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
                 <div className="typing-text text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
                   {(mode === 'vietnamese' || gameMode === 'speed') ? (
