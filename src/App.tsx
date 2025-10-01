@@ -643,14 +643,14 @@ function App() {
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
                 <div className="typing-text text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
                   {(mode === 'vietnamese' || gameMode === 'speed') ? (
-                    // Vietnamese or Speed mode: Word-based rendering
+                    // Vietnamese or Speed mode: Word-based rendering with precision mode colors
                     currentText.split(' ').map((word, wordIndex) => {
                       const typedWords = userInput.split(' ');
                       const currentWordIndex = typedWords.length - 1;
                       const isCurrentWord = wordIndex === currentWordIndex && !userInput.endsWith(' ');
                       const isTyped = wordIndex < typedWords.length && (userInput.endsWith(' ') || wordIndex < currentWordIndex);
                       const isIncorrect = incorrectWords.has(wordIndex);
-                      
+
                       return (
                         <span
                           key={wordIndex}
