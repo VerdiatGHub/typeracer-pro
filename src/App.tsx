@@ -289,51 +289,40 @@ function App() {
 
     if (gameState !== 'playing') return;
 
-    if (mode === 'vietnamese' || gameMode === 'speed') {
-      // For Vietnamese or Speed mode: handle word-level validation
-      const currentWords = currentText.split(' ');
-      const typedWords = value.split(' ');
-      
-      // Check if user just completed a word (typed space)
-      if (value.endsWith(' ')) {
-        // When the input ends with a space, the last element of typedWords is ""
-        // so the completed word index is length - 2
-        const completedIndex = typedWords.length - 2;
-        if (completedIndex >= 0 && completedIndex < currentWords.length) {
-          const typedWord = (typedWords[completedIndex] || '').trim();
-          const expectedWord = currentWords[completedIndex];
+    // Word-level validation for highlighting (applies to all modes)
+    const currentWords = currentText.split(' ');
+    const typedWords = value.split(' ');
 
-          if (typedWord !== expectedWord) {
-            setIncorrectWords(prev => new Set(prev).add(completedIndex));
-            if (soundEnabled && value.length > userInput.length) errorSound.play();
-          } else {
-            // Ensure any previous incorrect mark for this word is cleared when it's correct
-            setIncorrectWords(prev => {
-              const next = new Set(prev);
-              next.delete(completedIndex);
-              return next;
-            });
-            if (soundEnabled && value.length > userInput.length) keystrokeSound.play();
-          }
-        }
-      } else if (value.length > userInput.length) {
-        // Play keystroke sound for regular typing (not on space)
-        if (soundEnabled) keystrokeSound.play();
-      }
-      
-      // Do not mark current word as incorrect while typing; decision happens on space
-    } else {
-      // For English in Precision mode: keep character-level validation
-      if (value.length > userInput.length) {
-        const newChar = value[value.length - 1];
-        const expectedChar = currentText[value.length - 1];
-        
-        if (newChar !== expectedChar) {
-          setErrors(prev => prev + 1);
-          if (soundEnabled) errorSound.play();
+    // On space, evaluate the completed word
+    if (value.endsWith(' ')) {
+      const completedIndex = typedWords.length - 2; // last non-empty word index
+      if (completedIndex >= 0 && completedIndex < currentWords.length) {
+        const typedWord = (typedWords[completedIndex] || '').trim();
+        const expectedWord = currentWords[completedIndex];
+        if (typedWord !== expectedWord) {
+          setIncorrectWords(prev => new Set(prev).add(completedIndex));
+          if (soundEnabled && value.length > userInput.length) errorSound.play();
         } else {
-          if (soundEnabled) keystrokeSound.play();
+          setIncorrectWords(prev => {
+            const next = new Set(prev);
+            next.delete(completedIndex);
+            return next;
+          });
+          if (soundEnabled && value.length > userInput.length) keystrokeSound.play();
         }
+      }
+    } else if (value.length > userInput.length) {
+      // Regular typing keystroke (not space)
+      if (soundEnabled) keystrokeSound.play();
+    }
+
+    // Additional character-level validation for precision English (stats + error sound)
+    if (gameMode === 'precision' && mode === 'english' && value.length > userInput.length) {
+      const newChar = value[value.length - 1];
+      const expectedChar = currentText[value.length - 1];
+      if (newChar !== expectedChar) {
+        setErrors(prev => prev + 1);
+        if (soundEnabled) errorSound.play();
       }
     }
 
@@ -628,8 +617,8 @@ function App() {
               {/* Text Display - Updated comment to confirm no background highlighting */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
                 <div className="typing-text text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
-                  {(mode === 'vietnamese' || gameMode === 'speed') ? (
-                    // Vietnamese or Speed mode: Word-based rendering with precision mode colors
+                  {(mode === 'vietnamese' || gameMode === 'speed' || gameMode === 'precision') ? (
+                    // Word-based rendering (both modes) for consistent highlighting
                     currentText.split(' ').map((word, wordIndex) => {
                       const typedWords = userInput.split(' ');
                       const currentWordIndex = typedWords.length - 1;
@@ -648,27 +637,7 @@ function App() {
                         </span>
                       );
                     })
-                  ) : (
-                    // English in Precision mode: Character-based rendering
-                    currentText.split('').map((char, index) => {
-                      const status = getCharStatus(index);
-                      const isSpace = char === ' ';
-                      return (
-                        <span
-                          key={index}
-                          className={`
-                            ${!isSpace && status === 'correct' ? 'text-green-400' : ''}
-                            ${!isSpace && status === 'incorrect' ? 'text-red-400' : ''}
-                            ${!isSpace && status === 'pending' ? 'text-gray-500' : ''}
-                            ${isSpace ? 'text-gray-500' : ''}
-                            ${index === userInput.length ? 'text-yellow-400' : ''}
-                          `}
-                        >
-                          {char}
-                        </span>
-                      );
-                    })
-                  )}
+                  ) : null}
                 </div>
               </div>
 
