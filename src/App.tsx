@@ -295,16 +295,26 @@ function App() {
       const typedWords = value.split(' ');
       
       // Check if user just completed a word (typed space)
-      if (value.endsWith(' ') && typedWords.length <= currentWords.length) {
-        const wordIndex = typedWords.length - 1;
-        const typedWord = typedWords[wordIndex].trim();
-        const expectedWord = currentWords[wordIndex];
-        
-        if (typedWord !== expectedWord) {
-          setIncorrectWords(prev => new Set(prev).add(wordIndex));
-          if (soundEnabled && value.length > userInput.length) errorSound.play();
-        } else {
-          if (soundEnabled && value.length > userInput.length) keystrokeSound.play();
+      if (value.endsWith(' ')) {
+        // When the input ends with a space, the last element of typedWords is ""
+        // so the completed word index is length - 2
+        const completedIndex = typedWords.length - 2;
+        if (completedIndex >= 0 && completedIndex < currentWords.length) {
+          const typedWord = (typedWords[completedIndex] || '').trim();
+          const expectedWord = currentWords[completedIndex];
+
+          if (typedWord !== expectedWord) {
+            setIncorrectWords(prev => new Set(prev).add(completedIndex));
+            if (soundEnabled && value.length > userInput.length) errorSound.play();
+          } else {
+            // Ensure any previous incorrect mark for this word is cleared when it's correct
+            setIncorrectWords(prev => {
+              const next = new Set(prev);
+              next.delete(completedIndex);
+              return next;
+            });
+            if (soundEnabled && value.length > userInput.length) keystrokeSound.play();
+          }
         }
       } else if (value.length > userInput.length) {
         // Play keystroke sound for regular typing (not on space)
