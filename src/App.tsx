@@ -289,8 +289,8 @@ function App() {
 
     if (gameState !== 'playing') return;
 
-    if (mode === 'vietnamese') {
-      // For Vietnamese: handle word-level validation
+    if (mode === 'vietnamese' || gameMode === 'speed') {
+      // For Vietnamese or Speed mode: handle word-level validation
       const currentWords = currentText.split(' ');
       const typedWords = value.split(' ');
       
@@ -337,7 +337,7 @@ function App() {
         }
       }
     } else {
-      // For English: keep character-level validation
+      // For English in Precision mode: keep character-level validation
       if (value.length > userInput.length) {
         const newChar = value[value.length - 1];
         const expectedChar = currentText[value.length - 1];
@@ -642,8 +642,8 @@ function App() {
               {/* Text Display */}
               <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-6 border border-gray-700/50 shadow-2xl">
                 <div className="typing-text text-2xl leading-relaxed font-mono tracking-wide whitespace-pre-wrap min-h-[120px] flex flex-wrap items-start content-start">
-                  {mode === 'vietnamese' ? (
-                    // Vietnamese: Word-based rendering
+                  {(mode === 'vietnamese' || gameMode === 'speed') ? (
+                    // Vietnamese or Speed mode: Word-based rendering
                     currentText.split(' ').map((word, wordIndex) => {
                       const typedWords = userInput.split(' ');
                       const currentWordIndex = typedWords.length - 1;
@@ -666,7 +666,7 @@ function App() {
                       );
                     })
                   ) : (
-                    // English: Character-based rendering
+                    // English in Precision mode: Character-based rendering
                     currentText.split('').map((char, index) => {
                       const status = getCharStatus(index);
                       const isSpace = char === ' ';
